@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Verifikasi Browser</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #101014;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: grid;
+      place-items: center;
+    }
+
+    #intro {
+      width: min(90%, 420px);
+      padding: 30px 24px;
+      text-align: center;
+      background: #1c1c22;
+      border: 1px solid #444;
+      border-radius: 16px;
+    }
+
+    #start {
+      padding: 15px 25px;
+      border: 0;
+      border-radius: 8px;
+      background: #d71935;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #scare {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      z-index: 10;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #scare img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    #close {
+      position: absolute;
+      z-index: 12;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      padding: 11px 15px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      background: #161616cc;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    #status {
+      color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="intro">
+    <h2>Verifikasi Browser</h2>
+    <p>Tekan tombol untuk melanjutkan sesi.</p>
+    <button id="start">Lanjutkan</button>
+    <p id="status" aria-live="polite"></p>
+  </main>
+
+  <section id="scare" aria-label="Jumpscare">
+    <img src="scary.jpg" alt="Gambar horror">
+    <button id="close">Tutup ✕</button>
+  </section>
+
+  <audio id="sound" src="horror.mp3"
+         preload="auto"></audio>
+
+  <script>
+    const start = document.getElementById("start");
+    const intro = document.getElementById("intro");
+    const scare = document.getElementById("scare");
+    const sound = document.getElementById("sound");
+    const close = document.getElementById("close");
+    const status = document.getElementById("status");
+
+    let timer;
+
+    start.addEventListener("click", () => {
+      start.disabled = true;
+      status.textContent = "Memuat halaman...";
+
+      // Audio dimulai setelah interaksi pengguna.
+      sound.volume = 1;
+      sound.currentTime = 0;
+
+      // Siapkan audio dan tunggu 3 detik.
+      sound.play().then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+
+        timer = setTimeout(() => {
+          intro.style.display = "none";
+          scare.style.display = "block";
+
+          sound.play().catch(() => {
+            status.textContent =
+              "Audio tidak dapat diputar. Periksa file suara.";
+          });
+        }, 3000);
+      }).catch(() => {
+        status.textContent =
+          "Audio gagal dimuat. Periksa horror.mp3.";
+        start.disabled = false;
+      });
+    });
+
+    close.addEventListener("click", () => {
+      clearTimeout(timer);
+      sound.pause();
+      sound.currentTime = 0;
+      scare.style.display = "none";
+      intro.style.display = "grid";
+      status.textContent = "Selesai.";
+      start.disabled = false;
+    });
+  </script>
+</body>
+</html>
